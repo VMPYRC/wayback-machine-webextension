@@ -83,8 +83,10 @@
           <input type="checkbox" class="saved-setting private-setting" id="auto-archive-setting" />
           <div class="setting-text-box">
             <span class="toggle">Auto Save Page</span>
-            <div>
-              <span>if not archived:</span><br />
+            <button class="btn btn-mini" id="exclude-urls-btn">Exclude URLs...</button>
+            <br />
+            <span
+              >if not archived:
               <select id="auto-archive-age" class="btn-mini">
                 <option value="99999" selected>previously</option>
                 <option value="365">within past year</option>
@@ -93,10 +95,7 @@
                 <option value="7">within 7 days</option>
                 <option value="1">within 24 hours</option>
               </select>
-            </div>
-            <div>
-              <button class="btn btn-mini" id="exclude-urls-btn">Exclude URLs...</button>
-            </div>
+            </span>
           </div>
         </label>
 
