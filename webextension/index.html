@@ -79,6 +79,27 @@
           </div>
         </label>
 
+        <label class="setting-switch" for="auto-archive-setting">
+          <input type="checkbox" class="saved-setting private-setting" id="auto-archive-setting" />
+          <div class="setting-text-box">
+            <span class="toggle">Auto Save Page</span>
+            <div>
+              <span>if not archived:</span><br />
+              <select id="auto-archive-age" class="btn-mini">
+                <option value="99999" selected>previously</option>
+                <option value="365">within past year</option>
+                <option value="90">within 90 days</option>
+                <option value="30">within 30 days</option>
+                <option value="7">within 7 days</option>
+                <option value="1">within 24 hours</option>
+              </select>
+            </div>
+            <div>
+              <button class="btn btn-mini" id="exclude-urls-btn">Exclude URLs...</button>
+            </div>
+          </div>
+        </label>
+
         <div class="btn-flex-block">
           <button type="button" class="btn btn-sm btn-equal btn-light-gray not-sup-dim blocked-dim" id="oldest-btn" title="Display the earliest archive of a URL">Oldest</button>
           <button tabindex="0" class="btn-social btn-sm btn-red not-sup-dim blocked-dim" id="overview-btn" title="Display a Calendar of archives">
@@ -219,26 +240,6 @@
       </div>
 
       <div id="first-panel" style="margin-bottom: 10px">
-        <label class="setting-switch" for="auto-archive-setting">
-          <input type="checkbox" class="saved-setting private-setting" id="auto-archive-setting" />
-          <div class="setting-text-box">
-            <span class="toggle">Auto Save Page</span>
-            <div style="margin-top: 0.5em">
-              <span>if not archived:</span><br />
-              <select id="auto-archive-age" class="btn-mini">
-                <option value="99999" selected>previously</option>
-                <option value="365">within past year</option>
-                <option value="90">within 90 days</option>
-                <option value="30">within 30 days</option>
-                <option value="7">within 7 days</option>
-                <option value="1">within 24 hours</option>
-              </select>
-            </div>
-            <div>
-              <button class="btn btn-mini" id="exclude-urls-btn">Exclude URLs...</button>
-            </div>
-          </div>
-        </label>
         <label class="setting-switch" for="auto-bookmark-setting" id="auto-bookmark-label">
           <input type="checkbox" class="saved-setting" id="auto-bookmark-setting" />
           <div class="setting-text-box">
