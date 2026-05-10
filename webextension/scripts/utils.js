@@ -11,6 +11,7 @@ const defaultAutoExcludeList = [
   '*.google.com*',
   'mail.yahoo.com*',
   'duckduckgo.com/?q=*',
+  '*.discord.com/api/webhooks/*',
   '*.proton.me*'
 ]
 
@@ -158,7 +159,7 @@ function getUserInfo() {
   return apiPromise
   .then(response => response.json())
   .then((res) => {
-    if (res && res.success && ('value' in res)) {
+    if (res?.success && ('value' in res)) {
       // success
       return res.value
     } else {
@@ -178,9 +179,9 @@ function getUserInfo() {
 function checkAuthentication(acallback) {
   chrome.cookies.getAll({ url: 'https://archive.org' }, (cookies) => {
     let loggedIn = false, ia_auth = false
-    cookies && cookies.forEach(cookie => {
-      if ((cookie.name === 'logged-in-sig') && cookie.value && (cookie.value.length > 0)) { loggedIn = true }
-      else if ((cookie.name === 'ia-auth') && cookie.value && (cookie.value.length > 0)) { ia_auth = true }
+    cookies?.forEach(cookie => {
+      if (cookie.name === 'logged-in-sig' && cookie.value?.length > 0) { loggedIn = true }
+      else if (cookie.name === 'ia-auth' && cookie.value?.length > 0) { ia_auth = true }
     })
     if (loggedIn) {
       // store auth cookies in storage
@@ -199,7 +200,7 @@ function checkAuthentication(acallback) {
             )
             newCookie.url = 'https://archive.org'
             chrome.cookies.set(newCookie)
-            if ((authCookie.name === 'logged-in-sig') && authCookie.value && (authCookie.value.length > 0)) { loggedIn = true }
+            if (authCookie.name === 'logged-in-sig' && authCookie.value?.length > 0) { loggedIn = true }
           })
         }
         acallback({ 'auth_check': loggedIn })
@@ -222,7 +223,7 @@ function getTabKey(atab) {
  * @return Promise
  */
 async function saveTabData(atab, data) {
-  if (!(atab && ('id' in atab) && ('windowId' in atab))) { return }
+  if (!(atab?.id && atab?.windowId)) { return }
   let key = 'tab_' + getTabKey(atab)
   // take exisiting data in storage and overwrite with new data
   let result = await chrome.storage.session.get(key);
@@ -240,7 +241,7 @@ async function saveTabData(atab, data) {
  * @return Promise
  */
 async function clearTabData(atab, keylist) {
-  if (!(atab && ('id' in atab) && ('windowId' in atab))) { return }
+  if (!(atab?.id && atab?.windowId)) { return }
   let key = 'tab_' + getTabKey(atab)
   // take exisiting data in storage and delete any items from keylist
   let result = await chrome.storage.session.get(key);
@@ -263,7 +264,7 @@ async function clearTabData(atab, keylist) {
  * @return Promise data is an object of key:value pairs stored for given tab, or data is undefined.
  */
 async function readTabData(atab) {
-  if (!(atab && ('id' in atab) && ('windowId' in atab))) { return }
+  if (!(atab?.id && atab?.windowId)) { return }
   const key = 'tab_' + getTabKey(atab)
   const result = await chrome.storage.session.get(key);
   return result[key];
@@ -278,7 +279,7 @@ async function readTabData(atab) {
  * Return true if version has 4 numbers, which means it's a development build not for release.
  */
 function isDevVersion() {
-  return (gVersion && (gVersion.split('.').length === 4))
+  return gVersion?.split('.').length === 4
 }
 
 /**
@@ -322,13 +323,12 @@ function badgeCountText(count) {
  */
 function getWaybackCount(url, onSuccess, onFail) {
   if (isValidUrl(url) && isNotExcludedUrl(url)) {
-    const requestUrl = hostURL + '__wb/sparkline'
-    const requestParams = '?collection=web&output=json&url=' + fixedEncodeURIComponent(url)
+    const requestUrl = hostURL + '__wb/sparkline?collection=web&output=json&url=' + fixedEncodeURIComponent(url)
     const timeoutPromise = new Promise((resolve, reject) => {
       setTimeout(() => {
         reject(new Error('timeout'))
       }, 30000)
-      fetch(requestUrl + requestParams, {
+      fetch(requestUrl, {
         method: 'GET',
         headers: hostHeaders
       })
@@ -337,21 +337,15 @@ function getWaybackCount(url, onSuccess, onFail) {
     return timeoutPromise
     .then(response => response.json())
     .then(json => {
-      const years = json.years
       let total = 0
-      if (isObject(years)) {
-        for (let y in years) {
-          for (let c of years[y]) {
-            total += c
-          }
-        }
+      if (isObject(json.years)) {
+        total = Object.values(json.years).flat().reduce((a, b) => a + b, 0)
       }
       // set total to special value if URL is excluded from viewing
-      if (json.error && json.error.type && (json.error.type === 'blocked')) {
+      if (json?.error?.type === 'blocked') {
         total = -1
       }
-      let values = { total: total, first_ts: json.first_ts, last_ts: json.last_ts }
-      onSuccess(values)
+      onSuccess({ total: total, first_ts: json.first_ts, last_ts: json.last_ts })
     })
     .catch(error => {
       console.log('getWaybackCount FAILED: ', error)
@@ -367,9 +361,8 @@ function getWaybackCount(url, onSuccess, onFail) {
  * Checks Wayback Machine API for url snapshot
  */
 function wmAvailabilityCheck(url, onsuccess, onfail) {
-  const requestUrl = hostURL + 'wayback/available'
-  const requestParams = '?url=' + fixedEncodeURIComponent(url)
-  fetch(requestUrl + requestParams, {
+  const requestUrl = hostURL + 'wayback/available?url=' + fixedEncodeURIComponent(url)
+  fetch(requestUrl, {
     method: 'GET',
     headers: hostHeaders
   })
@@ -447,12 +440,14 @@ function cropScheme(url) {
   return null
 }
 
-// Function to check whether it is a valid URL or not.
+// Function to check whether it is a valid URL or not. Case insensitive.
 // Returns: true = good, false = excluded URL.
 function isNotExcludedUrl(url) {
   if (typeof url !== 'string') { return false }
   if (url.trim() === '') { return false }
-  for (const exUrl of excluded_urls) {
+  url = url.toLowerCase()
+  for (let exUrl of excluded_urls) {
+    exUrl = exUrl.toLowerCase()
     if (url.startsWith(exUrl) || url.startsWith('http://' + exUrl) || url.startsWith('https://' + exUrl)) {
       return false
     }
@@ -503,17 +498,16 @@ function getCleanUrl(url) {
  * @return {string or null}
  */
 function getWaybackUrlFromResponse(json) {
-  if (json && json.archived_snapshots &&
-    json.archived_snapshots.closest &&
-    json.archived_snapshots.closest.available &&
-    json.archived_snapshots.closest.available === true &&
-    json.archived_snapshots.closest.status.indexOf('2') === 0 &&
-    isValidUrl(json.archived_snapshots.closest.url)) {
-    // not sure why we're replacing http: with https: here
-    return json.archived_snapshots.closest.url.replace(/^http:/, 'https:')
-  } else {
+  const url = json?.archived_snapshots?.closest?.url
+  const status = json?.archived_snapshots?.closest?.status
+  const available = json?.archived_snapshots?.closest?.available
+
+  if (!available || !status?.startsWith('2') || !isValidUrl(url)) {
     return null
   }
+
+  // Preserve https preference if needed
+  return url.replace(/^http:/, 'https:')
 }
 
 /**
@@ -522,16 +516,11 @@ function getWaybackUrlFromResponse(json) {
  * @return {string or null} as "yyyyMMddHHmmss"
  */
 function getWaybackTimestampFromResponse(json) {
-  if (json && json.archived_snapshots &&
-    json.archived_snapshots.closest &&
-    json.archived_snapshots.closest.available &&
-    json.archived_snapshots.closest.available === true &&
-    json.archived_snapshots.closest.status.indexOf('2') === 0 &&
-    isValidUrl(json.archived_snapshots.closest.url)) {
-    return json.archived_snapshots.closest.timestamp
-  } else {
+  const closest = json?.archived_snapshots?.closest
+  if (!closest?.available || !closest.status?.startsWith('2') || !isValidUrl(closest.url)) {
     return null
   }
+  return closest.timestamp
 }
 
 /**
@@ -541,7 +530,7 @@ function getWaybackTimestampFromResponse(json) {
  */
 function timestampToDate(timestamp) {
   let date = null
-  if (timestamp && timestamp.length >= 4) {
+  if (timestamp?.length >= 4) {
     date = new Date(Date.UTC(
       Number(timestamp.substring(0, 4)), // year
       (Number(timestamp.substring(4, 6)) || 1) - 1, // month
@@ -629,8 +618,7 @@ function matchWildcard(text, pattern) {
  */
 function isUrlInList(url, patterns) {
   const curl = cropPrefix(url)
-  const matched = patterns.some(pat => matchWildcard(curl, pat))
-  return matched
+  return patterns.some(pat => matchWildcard(curl, pat))
 }
 
 /**
@@ -662,14 +650,14 @@ function openByWindowSetting(url, op = null, cb) {
 
 function opener(url, option, callback) {
   if (option === 'tab' || option === undefined) {
-    chrome.tabs.create({ url: url }, (tab) => {
+    chrome.tabs.create({ url }, (tab) => {
       if (callback) { callback(tab.id) }
     })
   } else if (option === 'replace') {
     // Back button may not work due to a bug in Chrome, but works fine in Firefox.
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs[0]) {
-        chrome.tabs.update(tabs[0].id, { active: true, url: url }, (tab) => {
+      if (tabs?.[0]) {
+        chrome.tabs.update(tabs[0].id, { active: true, url }, (tab) => {
           if (callback) { callback(tab.id) }
         })
       }
@@ -740,12 +728,13 @@ function checkLastError() {
 
 function attachTooltip (anchor, tooltip, pos = 'right', time = 200) {
   // Modified code from https://embed.plnkr.co/plunk/HLqrJ6 to get tooltip to stay
+  // Note: Bootstrap 5 changed data-toggle to data-bs-toggle, but jQuery plugin API still works
   return anchor.attr({
-    'data-toggle': 'tooltip',
+    'data-bs-toggle': 'tooltip',
     'title': tooltip
   })
   .tooltip({
-    animated: false,
+    // animated option removed in Bootstrap 5, but jQuery plugin API should handle it
     placement: `${pos} auto`,
     html: true,
     trigger: 'manual'

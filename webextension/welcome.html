@@ -3,6 +3,7 @@
   <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <link rel="stylesheet" type="text/css" href="css/welcome.css">
@@ -11,15 +12,18 @@
   </head>
   <body>
     <div class="body-container">
-      <div class="header-container">
-        <div class="welcome-logo"></div>
+      <header>
+        <picture>
+          <source srcset="images/wayback-dark.png" media="(prefers-color-scheme: dark)" width="850" height="340"/>
+          <img class="welcome-logo" src="images/wayback-light.png" width="850" height="340" alt=""/>
+        </picture>
         <h1>
           Welcome to the Internet Archive's<br>
           Wayback Machine Browser Extension
         </h1>
-      </div>
+      </header>
 
-      <div class="content-container">
+      <main>
         <h3>
           The Internet Archive Wayback Machine Browser Extension Privacy Policy
         </h3>
@@ -65,15 +69,17 @@
         <p>
           We retain collected URLs for as long as they provide value to our mission.
         </p>
-      </div>
+      </main>
 
       <div class="bottom-container">
-        <button type="submit" name="accept-terms" id="accept-btn" class="btn btn-auto btn-blue">
-          <span>Accept and Enable</span>
-        </button>
-        <button type="submit" name="decline-terms" id="decline-btn" class="btn btn-auto btn-dark-gray">
-          <span>Cancel</span>
-        </button>
+        <div class="bottom">
+          <button type="submit" name="accept-terms" id="accept-btn" class="btn btn-auto btn-blue">
+            <span>Accept and Enable</span>
+          </button>
+          <button type="submit" name="decline-terms" id="decline-btn" class="btn btn-auto btn-dark-gray">
+            <span>Cancel</span>
+          </button>
+        </div>
       </div>
 
     </div>

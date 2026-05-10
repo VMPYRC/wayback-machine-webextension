@@ -87,6 +87,67 @@ button {
   outline: none !important;
 }
 
+/* Disabled button styling using standard HTML disabled attribute and :disabled CSS selector */
+.btn:disabled,
+input:disabled,
+button:disabled {
+  opacity: 0.66 !important;
+  cursor: not-allowed !important;
+  pointer-events: auto !important; /* Override Bootstrap's pointer-events: none to allow cursor display */
+}
+
+/* Prevent color changes on disabled buttons when hovered/focused/active */
+.btn:disabled:hover,
+.btn:disabled:focus,
+.btn:disabled:active,
+.btn:disabled:focus-visible {
+  opacity: 0.66 !important;
+  box-shadow: none !important;
+}
+
+/* Preserve original button colors for disabled state - override Bootstrap 5's
+   .btn:disabled which uses undefined CSS vars that resolve to transparent */
+.btn-red:disabled,
+.btn-red:disabled:hover,
+.btn-red:disabled:active,
+.btn-red:disabled:focus {
+  background-color: #9a3b38 !important;
+  border-color: #bf4946 !important;
+  color: #eee !important;
+}
+.btn-light-gray:disabled,
+.btn-light-gray:disabled:hover,
+.btn-light-gray:disabled:active,
+.btn-light-gray:disabled:focus {
+  background-color: #737373 !important;
+  border-color: #a9a9a9 !important;
+  color: #eee !important;
+}
+.btn-dark-gray:disabled,
+.btn-dark-gray:disabled:hover,
+.btn-dark-gray:disabled:active,
+.btn-dark-gray:disabled:focus {
+  background-color: #4d4d4d !important;
+  border-color: #737373 !important;
+  color: #eee !important;
+}
+.btn-yellow:disabled,
+.btn-yellow:disabled:hover,
+.btn-yellow:disabled:active,
+.btn-yellow:disabled:focus {
+  background-color: #aa8800 !important;
+  border-color: #eecc00 !important;
+  color: #eee !important;
+}
+.btn-blue:disabled,
+.btn-blue:disabled:hover,
+.btn-blue:disabled:active,
+.btn-blue:disabled:focus {
+  background-color: #405971 !important;
+  border-color: #668db3 !important;
+  color: #eee !important;
+}
+
 /* button sizes */
 
 .btn-mini {
@@ -267,16 +328,31 @@ button.selected:focus-visible {
   margin: 0;
   overflow: hidden;
   border-radius: 5px;
+  background-color: transparent; /* Override Bootstrap 5's light gray bg so .btn-red parent shows through */
 }
 
 .progress-bar {
   background-color: #9a3b38;
+  height: 100%;
+}
+
+.progress-bar-striped {
+  background-size: 40px 40px; /* Override Bootstrap 5's 1rem stripes to match original larger stripes */
 }
 
 .progress-bar.active {
   -webkit-animation: progress-bar-stripes 0.5s linear infinite;
   -o-animation: progress-bar-stripes 0.5s linear infinite;
   animation: progress-bar-stripes 0.5s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
 }
 
 /* Dark Mode */

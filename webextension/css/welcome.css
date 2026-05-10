@@ -26,19 +26,25 @@ p {
     padding: 0;
 }
 
-.header-container {
+header {
     text-align: center;
 }
 
-.content-container {
-    margin: 2em 15vw 10vh 15vw;
+main, .bottom {
+    max-inline-size: min(60ch, 100%);
+    margin-inline: auto;
+    padding-inline: 16px;
+}
+
+main {
+    margin-block: 2em 10vh;
     padding-bottom: 5em;
 }
 
 .bottom-container {
     position: fixed;
     margin: 0;
-    padding: 0.5em 15vw 0.5em 15vw;
+    padding-block: 0.5em;
     bottom: 0;
     left: 0;
     right: 0;
@@ -48,9 +54,9 @@ p {
 }
 
 .welcome-logo {
-    background: url('../images/wayback-light.png') center/cover no-repeat;
-    width: 375px;
-    height: 150px;
+    width: 100%;
+    max-width: 375px;
+    height: auto;
     margin: 0 auto;
 }
 
@@ -73,9 +79,4 @@ p {
     .bottom-container {
         background-color: #333;
     }
-
-    .welcome-logo {
-        background-image: url('../images/wayback-dark.png')
-    }
-
 }
